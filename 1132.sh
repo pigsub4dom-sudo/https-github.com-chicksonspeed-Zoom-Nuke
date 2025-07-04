@@ -59,7 +59,13 @@ rm -rf \
   "$HOME/Library/Containers/us.zoom.xos" \
   "$HOME/Library/Saved Application State/us.zoom.xos.savedState"
 
-# ─── 5. Forget pkg receipts & Homebrew ────────────────────
+# ─── 5. NSYNC send-off ────────────────────────────────────
+echo "🎵 I just wanna tell you that I've had enough"; sleep 1
+echo "🎶 It might sound crazy, but it ain't no lie";      sleep 1
+echo "🎵 Baby, bye, bye, bye";                          sleep 1
+echo "✅ Zoom deleted."
+
+# ─── 6. Forget pkg receipts & Homebrew ────────────────────
 ZOOM_PKG=$(pkgutil --pkgs | grep -i zoom | head -n1 || true)
 [[ -n "$ZOOM_PKG" ]] && sudo pkgutil --forget "$ZOOM_PKG" || true
 
@@ -68,7 +74,7 @@ if command -v brew &>/dev/null; then
   [[ -n "$CASK" ]] && brew uninstall --cask "$CASK"
 fi
 
-# ─── 6. Spoof MAC (try multiple syntaxes, no down/up) ────────────────────
+# ─── 7. Spoof MAC (try multiple syntaxes, no down/up) ──────
 ORIG_MAC=$(ifconfig "$IF" | awk '/ether/ {print $2}')
 BACKUP="$HOME/.orig_mac_backup"
 [[ -f $BACKUP ]] || echo "$ORIG_MAC" > "$BACKUP"
@@ -88,12 +94,12 @@ else
   echo "⚠️ Failed to spoof MAC. If you’re on Wi-Fi, check your “Private Wi-Fi Address” setting in System Settings → Wi-Fi → Advanced and try disabling it, or test on a wired interface."
 fi
 
-# ─── 7. Flush DNS ───────────────────────────────────────
+# ─── 8. Flush DNS ────────────────────────────────────────
 echo "🌐 Flushing DNS…"
 sudo dscacheutil -flushcache
 sudo killall -HUP mDNSResponder || true
 
-# ─── 8. Restart network ──────────────────────────────────
+# ─── 9. Restart network ──────────────────────────────────
 # Skip the first “asterisk” note and any disabled (*) services
 SERV=$(networksetup -listallnetworkservices \
        | tail -n +2 \
@@ -110,10 +116,10 @@ else
   echo "⚠️ No active network service found; skipping restart"
 fi
 
-# ─── 9. Bong (optional) break ─────────────────────────────
+# ─── 10. Bong (optional) break ─────────────────────────────
 echo "💨 Quick bong break…"; sleep 3
 
-# ─── 10. Download & install Zoom ──────────────────────────
+# ─── 11. Download & install Zoom ──────────────────────────
 PKG="$HOME/Downloads/Zoom.pkg"
 echo "⬇️ Downloading Zoom…"
 curl -L --fail --silent --show-error -o "$PKG" "https://zoom.us/client/latest/Zoom.pkg" \
@@ -122,7 +128,7 @@ curl -L --fail --silent --show-error -o "$PKG" "https://zoom.us/client/latest/Zo
 echo "📦 Installing…"
 sudo installer -pkg "$PKG" -target / || { echo "❌ Installer failed."; exit 1; }
 
-# ─── 11. Wipe residual data files ─────────────────────────
+# ─── 12. Wipe residual data files ─────────────────────────
 DATA="$HOME/Library/Application Support/zoom.us/data"
 for f in viper.ini zoomus.enc.db zoommeeting.enc.db; do
   [[ -f "$DATA/$f" ]] && {
@@ -132,6 +138,6 @@ for f in viper.ini zoomus.enc.db zoommeeting.enc.db; do
   }
 done
 
-# ─── 12. Cleanup installer & finish ───────────────────────
+# ─── 13. Cleanup installer & finish ───────────────────────
 rm -f "$PKG"
 echo "🎉 All done, babe! Details in $LOG."
